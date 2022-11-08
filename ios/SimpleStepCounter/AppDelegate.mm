@@ -6,6 +6,9 @@
 
 #import <React/RCTAppSetupUtils.h>
 
+/* Add the library import at the top of AppDelegate.m */
+#import "RCTAppleHealthKit.h"
+
 #if RCT_NEW_ARCH_ENABLED
 #import <React/CoreModulesPlugins.h>
 #import <React/RCTCxxBridgeDelegate.h>
@@ -57,6 +60,10 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+
+  /* Add Background initializer for HealthKit  */
+  [[RCTAppleHealthKit new] initializeBackgroundObservers:bridge];
+
   return YES;
 }
 
