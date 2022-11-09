@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, Platform} from 'react-native';
 import AppleHealthKit, {
   HealthValue,
   HealthKitPermissions,
@@ -14,137 +14,153 @@ const permissions = {
 } as HealthKitPermissions;
 
 const App = () => {
-  const [steps, setSteps] = useState(999999);
+  const [steps, setSteps] = useState(0);
 
-  AppleHealthKit.initHealthKit(permissions, (error: string) => {
-    /* Called after we receive a response from the system */
-
-    if (error) {
-      console.log('[ERROR] Cannot grant permissions!');
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      setSteps('iOS에서만 서비스 가능합니다.');
+      return;
     }
 
-    /* Can now read or write to HealthKit */
+    AppleHealthKit.initHealthKit(permissions, (error: string) => {
+      /* Called after we receive a response from the system */
 
-    // 하루 걸음 수
-    // let options = {
-    //   date: new Date(2022, 10, 9).toISOString(), // optional; default now
-    // };
+      if (error) {
+        console.log('[ERROR] Cannot grant permissions!');
+      }
 
-    // AppleHealthKit.getStepCount(
-    //   options,
-    //   (err: Object, results: HealthValue) => {
-    //     if (err) {
-    //       console.log('err===');
-    //       console.log(err);
-    //       return;
-    //     }
-    //     console.log('results===');
-    //     console.log(results);
+      /* Can now read or write to HealthKit */
 
-    //     setSteps(results.value);
-    //   },
-    // );
+      // 하루 걸음 수
+      let options = {
+        date: new Date().toISOString(), // optional; default now
+      };
 
-    // {
-    //   "endDate": "2022-11-09T10:30:16.949+0900",
-    //   "startDate": "2022-11-09T07:57:39.734+0900",
-    //   "value": 1632
-    // }
+      AppleHealthKit.getStepCount(
+        options,
+        (err: Object, results: HealthValue) => {
+          if (err) {
+            console.log('err===');
+            console.log(err);
+            return;
+          }
+          console.log('results===');
+          console.log(results);
 
-    // 1주일 걸음 수
+          setSteps(results.value);
+        },
+      );
 
-    let options = {
-      startDate: new Date(2022, 10, 8).toISOString(), // required
-      endDate: new Date().toISOString(), // optional; default now
-    };
+      // {
+      //   "endDate": "2022-11-09T10:30:16.949+0900",
+      //   "startDate": "2022-11-09T07:57:39.734+0900",
+      //   "value": 1632
+      // }
 
-    AppleHealthKit.getDailyStepCountSamples(
-      options,
-      (err: string, results: Array<HealthValue>) => {
-        if (err) {
-          console.log('err===');
-          console.log(err);
-          return;
-        }
-        console.log('results===');
-        console.log(results);
-        // setSteps(results.value);
-      },
-    );
+      // 1주일 걸음 수
 
-    // [
-    //   {
-    //     endDate: '2022-11-09T11:00:00.000+0900',
-    //     startDate: '2022-11-09T10:00:00.000+0900',
-    //     value: 214,
-    //   },
-    //   {
-    //     endDate: '2022-11-09T09:00:00.000+0900',
-    //     startDate: '2022-11-09T08:00:00.000+0900',
-    //     value: 1337.503591423364,
-    //   },
-    //   {
-    //     endDate: '2022-11-09T08:00:00.000+0900',
-    //     startDate: '2022-11-09T07:00:00.000+0900',
-    //     value: 80.49640857663603,
-    //   },
-    //   {
-    //     endDate: '2022-11-09T00:00:00.000+0900',
-    //     startDate: '2022-11-08T23:00:00.000+0900',
-    //     value: 842,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T23:00:00.000+0900',
-    //     startDate: '2022-11-08T22:00:00.000+0900',
-    //     value: 798,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T22:00:00.000+0900',
-    //     startDate: '2022-11-08T21:00:00.000+0900',
-    //     value: 556.47989601913,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T21:00:00.000+0900',
-    //     startDate: '2022-11-08T20:00:00.000+0900',
-    //     value: 412.52010398087,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T20:00:00.000+0900',
-    //     startDate: '2022-11-08T19:00:00.000+0900',
-    //     value: 1168,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T19:00:00.000+0900',
-    //     startDate: '2022-11-08T18:00:00.000+0900',
-    //     value: 157,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T18:00:00.000+0900',
-    //     startDate: '2022-11-08T17:00:00.000+0900',
-    //     value: 900,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T15:00:00.000+0900',
-    //     startDate: '2022-11-08T14:00:00.000+0900',
-    //     value: 386,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T14:00:00.000+0900',
-    //     startDate: '2022-11-08T13:00:00.000+0900',
-    //     value: 651,
-    //   },
-    //   {
-    //     endDate: '2022-11-08T13:00:00.000+0900',
-    //     startDate: '2022-11-08T12:00:00.000+0900',
-    //     value: 34,
-    //   },
-    // ];
-  });
+      // let options = {
+      //   startDate: new Date(2022, 10, 8).toISOString(), // required
+      //   endDate: new Date().toISOString(), // optional; default now
+      // };
+
+      // AppleHealthKit.getDailyStepCountSamples(
+      //   options,
+      //   (err: string, results: Array<HealthValue>) => {
+      //     if (err) {
+      //       console.log('err===');
+      //       console.log(err);
+      //       return;
+      //     }
+      //     console.log('results===');
+      //     console.log(results);
+
+      //     if (results.length) {
+      //       setSteps(results[0].value);
+      //     }
+      //   },
+      // );
+
+      // [
+      //   {
+      //     endDate: '2022-11-09T11:00:00.000+0900',
+      //     startDate: '2022-11-09T10:00:00.000+0900',
+      //     value: 214,
+      //   },
+      //   {
+      //     endDate: '2022-11-09T09:00:00.000+0900',
+      //     startDate: '2022-11-09T08:00:00.000+0900',
+      //     value: 1337.503591423364,
+      //   },
+      //   {
+      //     endDate: '2022-11-09T08:00:00.000+0900',
+      //     startDate: '2022-11-09T07:00:00.000+0900',
+      //     value: 80.49640857663603,
+      //   },
+      //   {
+      //     endDate: '2022-11-09T00:00:00.000+0900',
+      //     startDate: '2022-11-08T23:00:00.000+0900',
+      //     value: 842,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T23:00:00.000+0900',
+      //     startDate: '2022-11-08T22:00:00.000+0900',
+      //     value: 798,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T22:00:00.000+0900',
+      //     startDate: '2022-11-08T21:00:00.000+0900',
+      //     value: 556.47989601913,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T21:00:00.000+0900',
+      //     startDate: '2022-11-08T20:00:00.000+0900',
+      //     value: 412.52010398087,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T20:00:00.000+0900',
+      //     startDate: '2022-11-08T19:00:00.000+0900',
+      //     value: 1168,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T19:00:00.000+0900',
+      //     startDate: '2022-11-08T18:00:00.000+0900',
+      //     value: 157,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T18:00:00.000+0900',
+      //     startDate: '2022-11-08T17:00:00.000+0900',
+      //     value: 900,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T15:00:00.000+0900',
+      //     startDate: '2022-11-08T14:00:00.000+0900',
+      //     value: 386,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T14:00:00.000+0900',
+      //     startDate: '2022-11-08T13:00:00.000+0900',
+      //     value: 651,
+      //   },
+      //   {
+      //     endDate: '2022-11-08T13:00:00.000+0900',
+      //     startDate: '2022-11-08T12:00:00.000+0900',
+      //     value: 34,
+      //   },
+      // ];
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SimpleStepCounter</Text>
-      <Text style={styles.steps}>{steps}</Text>
+      <Text
+        style={[
+          styles.steps,
+          Platform.OS === 'android' && styles.stepsAndroid,
+        ]}>
+        {steps}
+      </Text>
     </View>
   );
 };
@@ -162,6 +178,13 @@ const styles = StyleSheet.create({
   steps: {
     fontSize: 60,
     marginTop: 20,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  stepsAndroid: {
+    fontSize: 15,
+    color: 'red',
+    fontWeight: 'bold',
   },
 });
 
