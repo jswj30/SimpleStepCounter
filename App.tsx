@@ -8,8 +8,8 @@ import AppleHealthKit, {
 /* Permission options */
 const permissions = {
   permissions: {
-    read: [AppleHealthKit.Constants.Permissions.Steps],
-    write: [AppleHealthKit.Constants.Permissions.Steps],
+    read: [AppleHealthKit.Constants.Permissions.StepCount],
+    write: [AppleHealthKit.Constants.Permissions.StepCount],
   },
 } as HealthKitPermissions;
 
@@ -25,65 +25,14 @@ const App = () => {
 
     /* Can now read or write to HealthKit */
 
-    // const options = {
-    //   startDate: new Date(2022, 11, 7).toISOString(),
-    // };
-
-    // AppleHealthKit.getHeartRateSamples(
-    //   options,
-    //   (callbackError: string, results: HealthValue[]) => {
-    //     /* Samples are now collected from HealthKit */
-
-    //     console.log('results=====');
-    //     console.log(results);
-
-    //     console.log('callbackError===');
-    //     console.log(callbackError);
-    //   },
-    // );
-
-    let options = {
-      date: new Date(2022, 10, 7).toISOString(), // optional; default now
-
-      // date: new Date(2022, 10, 7).toISOString(), // optional; default now
-      // includeManuallyAdded: true, // optional: default true
-    };
-
-    // export interface HealthInputOptions extends HealthUnitOptions {
-    //   startDate?: string;
-    //   endDate?: string;
-    //   limit?: number;
-    //   ascending?: boolean;
-    //   type?: HealthObserver;
-    //   date?: string;
-    //   includeManuallyAdded?: boolean;
-    //   period?: number;
-    //   anchor?: string;
-    // }
-
+    // 하루 걸음 수
     // let options = {
-    //   startDate: new Date(2022, 10, 9).toISOString(), // required
-    //   endDate: new Date().toISOString(), // optional; default now
+    //   date: new Date(2022, 10, 9).toISOString(), // optional; default now
     // };
 
-    AppleHealthKit.getStepCount(
-      options,
-      (err: Object, results: HealthValue) => {
-        if (err) {
-          console.log('err===');
-          console.log(err);
-          return;
-        }
-        console.log('results===');
-        console.log(results);
-
-        setSteps(results.value);
-      },
-    );
-
-    // AppleHealthKit.getDailyStepCountSamples(
+    // AppleHealthKit.getStepCount(
     //   options,
-    //   (err: string, results: Array<HealthValue>) => {
+    //   (err: Object, results: HealthValue) => {
     //     if (err) {
     //       console.log('err===');
     //       console.log(err);
@@ -91,22 +40,105 @@ const App = () => {
     //     }
     //     console.log('results===');
     //     console.log(results);
-    //     // setSteps(results.value);
 
-    //     [
-    //       {
-    //         endDate: '2022-11-09T09:00:00.000+0900',
-    //         startDate: '2022-11-09T08:00:00.000+0900',
-    //         value: 1337.503591423364,
-    //       },
-    //       {
-    //         endDate: '2022-11-09T08:00:00.000+0900',
-    //         startDate: '2022-11-09T07:00:00.000+0900',
-    //         value: 80.49640857663603,
-    //       },
-    //     ];
+    //     setSteps(results.value);
     //   },
     // );
+
+    // {
+    //   "endDate": "2022-11-09T10:30:16.949+0900",
+    //   "startDate": "2022-11-09T07:57:39.734+0900",
+    //   "value": 1632
+    // }
+
+    // 1주일 걸음 수
+
+    let options = {
+      startDate: new Date(2022, 10, 8).toISOString(), // required
+      endDate: new Date().toISOString(), // optional; default now
+    };
+
+    AppleHealthKit.getDailyStepCountSamples(
+      options,
+      (err: string, results: Array<HealthValue>) => {
+        if (err) {
+          console.log('err===');
+          console.log(err);
+          return;
+        }
+        console.log('results===');
+        console.log(results);
+        // setSteps(results.value);
+      },
+    );
+
+    // [
+    //   {
+    //     endDate: '2022-11-09T11:00:00.000+0900',
+    //     startDate: '2022-11-09T10:00:00.000+0900',
+    //     value: 214,
+    //   },
+    //   {
+    //     endDate: '2022-11-09T09:00:00.000+0900',
+    //     startDate: '2022-11-09T08:00:00.000+0900',
+    //     value: 1337.503591423364,
+    //   },
+    //   {
+    //     endDate: '2022-11-09T08:00:00.000+0900',
+    //     startDate: '2022-11-09T07:00:00.000+0900',
+    //     value: 80.49640857663603,
+    //   },
+    //   {
+    //     endDate: '2022-11-09T00:00:00.000+0900',
+    //     startDate: '2022-11-08T23:00:00.000+0900',
+    //     value: 842,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T23:00:00.000+0900',
+    //     startDate: '2022-11-08T22:00:00.000+0900',
+    //     value: 798,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T22:00:00.000+0900',
+    //     startDate: '2022-11-08T21:00:00.000+0900',
+    //     value: 556.47989601913,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T21:00:00.000+0900',
+    //     startDate: '2022-11-08T20:00:00.000+0900',
+    //     value: 412.52010398087,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T20:00:00.000+0900',
+    //     startDate: '2022-11-08T19:00:00.000+0900',
+    //     value: 1168,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T19:00:00.000+0900',
+    //     startDate: '2022-11-08T18:00:00.000+0900',
+    //     value: 157,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T18:00:00.000+0900',
+    //     startDate: '2022-11-08T17:00:00.000+0900',
+    //     value: 900,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T15:00:00.000+0900',
+    //     startDate: '2022-11-08T14:00:00.000+0900',
+    //     value: 386,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T14:00:00.000+0900',
+    //     startDate: '2022-11-08T13:00:00.000+0900',
+    //     value: 651,
+    //   },
+    //   {
+    //     endDate: '2022-11-08T13:00:00.000+0900',
+    //     startDate: '2022-11-08T12:00:00.000+0900',
+    //     value: 34,
+    //   },
+    // ];
   });
 
   return (
