@@ -6230,10 +6230,10 @@
   "resolved" "https://registry.npmjs.org/react-native-gradle-plugin/-/react-native-gradle-plugin-0.70.3.tgz"
   "version" "0.70.3"
 
-"react-native-health@^1.10.0":
-  "integrity" "sha512-ozHemi5Amr4cjfojKa9FVVAyEJk8a9nzPP70GR59JYxcpRivv/tpqhvt8BzH/NCL9Whpvv6kiWNcIBOFd2spgA=="
-  "resolved" "https://registry.npmjs.org/react-native-health/-/react-native-health-1.13.0.tgz"
-  "version" "1.13.0"
+"react-native-health@1.10.0":
+  "integrity" "sha512-qfrxiErQ8x9P7f7VAOHpiafxpmQw5bYFWAXScu2Wu/Aj/xwB1eSOCVRmmVZqSFQ35+KYuMee/qOqkkLnQx3rGQ=="
+  "resolved" "https://registry.npmjs.org/react-native-health/-/react-native-health-1.10.0.tgz"
+  "version" "1.10.0"
   dependencies:
     "@expo/config-plugins" "^2.0.0"
 

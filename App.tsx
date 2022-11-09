@@ -8,7 +8,7 @@ import AppleHealthKit, {
 /* Permission options */
 const permissions = {
   permissions: {
-    read: [AppleHealthKit.Constants.Permissions.HeartRate],
+    read: [AppleHealthKit.Constants.Permissions.Steps],
     write: [AppleHealthKit.Constants.Permissions.Steps],
   },
 } as HealthKitPermissions;
@@ -42,12 +42,12 @@ const App = () => {
     //   },
     // );
 
-    // let options = {
-    //   date: new Date(2022, 10, 7).toISOString(), // optional; default now
+    let options = {
+      date: new Date(2022, 10, 7).toISOString(), // optional; default now
 
-    //   // date: new Date(2022, 10, 7).toISOString(), // optional; default now
-    //   // includeManuallyAdded: true, // optional: default true
-    // };
+      // date: new Date(2022, 10, 7).toISOString(), // optional; default now
+      // includeManuallyAdded: true, // optional: default true
+    };
 
     // export interface HealthInputOptions extends HealthUnitOptions {
     //   startDate?: string;
@@ -61,29 +61,14 @@ const App = () => {
     //   anchor?: string;
     // }
 
-    let options = {
-      startDate: new Date(2022, 10, 9).toISOString(), // required
-      endDate: new Date().toISOString(), // optional; default now
-    };
+    // let options = {
+    //   startDate: new Date(2022, 10, 9).toISOString(), // required
+    //   endDate: new Date().toISOString(), // optional; default now
+    // };
 
-    // AppleHealthKit.getStepCount(
-    //   options,
-    //   (err: Object, results: HealthValue) => {
-    //     if (err) {
-    //       console.log('err===');
-    //       console.log(err);
-    //       return;
-    //     }
-    //     console.log('results===');
-    //     console.log(results);
-
-    //     setSteps(results.value);
-    //   },
-    // );
-
-    AppleHealthKit.getDailyStepCountSamples(
+    AppleHealthKit.getStepCount(
       options,
-      (err: string, results: Array<HealthValue>) => {
+      (err: Object, results: HealthValue) => {
         if (err) {
           console.log('err===');
           console.log(err);
@@ -91,9 +76,37 @@ const App = () => {
         }
         console.log('results===');
         console.log(results);
-        // setSteps(results.value);
+
+        setSteps(results.value);
       },
     );
+
+    // AppleHealthKit.getDailyStepCountSamples(
+    //   options,
+    //   (err: string, results: Array<HealthValue>) => {
+    //     if (err) {
+    //       console.log('err===');
+    //       console.log(err);
+    //       return;
+    //     }
+    //     console.log('results===');
+    //     console.log(results);
+    //     // setSteps(results.value);
+
+    //     [
+    //       {
+    //         endDate: '2022-11-09T09:00:00.000+0900',
+    //         startDate: '2022-11-09T08:00:00.000+0900',
+    //         value: 1337.503591423364,
+    //       },
+    //       {
+    //         endDate: '2022-11-09T08:00:00.000+0900',
+    //         startDate: '2022-11-09T07:00:00.000+0900',
+    //         value: 80.49640857663603,
+    //       },
+    //     ];
+    //   },
+    // );
   });
 
   return (

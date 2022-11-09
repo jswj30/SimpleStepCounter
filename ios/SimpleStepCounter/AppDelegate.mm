@@ -1,5 +1,8 @@
 #import "AppDelegate.h"
 
+// Add the library import at the top of AppDelegate.m
+#import "RCTAppleHealthKit.h"
+
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -42,6 +45,9 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   _bridgeAdapter = [[RCTSurfacePresenterBridgeAdapter alloc] initWithBridge:bridge contextContainer:_contextContainer];
   bridge.surfacePresenter = _bridgeAdapter.surfacePresenter;
 #endif
+  
+  // Add Background initializer for HealthKit
+  [[RCTAppleHealthKit new] initializeBackgroundObservers:bridge];
 
   NSDictionary *initProps = [self prepareInitialProps];
   UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"SimpleStepCounter", initProps);
