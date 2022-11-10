@@ -37,7 +37,6 @@ const App = () => {
 
       // 하루 걸음 수
       let options = {
-        // date: new Date(year, month, day).toISOString(), // optional; default now
         date: new Date(year, month, day).toISOString(), // optional; default now
       };
 
