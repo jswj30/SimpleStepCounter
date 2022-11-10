@@ -32,7 +32,7 @@ const App = () => {
 
   useEffect(() => {
     updateStepData();
-  }, [year, month, day]);
+  }, []);
 
   const updateStepData = () => {
     const today = new Date();
