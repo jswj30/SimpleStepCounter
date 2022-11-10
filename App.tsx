@@ -14,9 +14,17 @@ const permissions = {
 } as HealthKitPermissions;
 
 const App = () => {
-  const [steps, setSteps] = useState(0);
+  const [steps, setSteps] = useState<string | number>(0);
+  const [year, setYear] = useState<number>(0);
+  const [month, setMonth] = useState<number>(0);
+  const [day, setDay] = useState<number>(0);
 
   useEffect(() => {
+    const today = new Date();
+    setYear(today.getFullYear());
+    setMonth(today.getMonth());
+    setDay(today.getDate());
+
     if (Platform.OS === 'android') {
       setSteps('iOS에서만 서비스 가능합니다.');
       return;
@@ -33,21 +41,21 @@ const App = () => {
 
       // 하루 걸음 수
       let options = {
-        date: new Date().toISOString(), // optional; default now
+        // date: new Date(year, month, day).toISOString(), // optional; default now
+        date: new Date(year, month, day).toISOString(), // optional; default now
       };
 
       AppleHealthKit.getStepCount(
         options,
         (err: Object, results: HealthValue) => {
           if (err) {
-            console.log('err===');
             console.log(err);
             return;
           }
           console.log('results===');
           console.log(results);
 
-          setSteps(results.value);
+          setSteps(Math.floor(results?.value ? results.value : 0));
         },
       );
 
@@ -80,80 +88,15 @@ const App = () => {
       //     }
       //   },
       // );
-
-      // [
-      //   {
-      //     endDate: '2022-11-09T11:00:00.000+0900',
-      //     startDate: '2022-11-09T10:00:00.000+0900',
-      //     value: 214,
-      //   },
-      //   {
-      //     endDate: '2022-11-09T09:00:00.000+0900',
-      //     startDate: '2022-11-09T08:00:00.000+0900',
-      //     value: 1337.503591423364,
-      //   },
-      //   {
-      //     endDate: '2022-11-09T08:00:00.000+0900',
-      //     startDate: '2022-11-09T07:00:00.000+0900',
-      //     value: 80.49640857663603,
-      //   },
-      //   {
-      //     endDate: '2022-11-09T00:00:00.000+0900',
-      //     startDate: '2022-11-08T23:00:00.000+0900',
-      //     value: 842,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T23:00:00.000+0900',
-      //     startDate: '2022-11-08T22:00:00.000+0900',
-      //     value: 798,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T22:00:00.000+0900',
-      //     startDate: '2022-11-08T21:00:00.000+0900',
-      //     value: 556.47989601913,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T21:00:00.000+0900',
-      //     startDate: '2022-11-08T20:00:00.000+0900',
-      //     value: 412.52010398087,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T20:00:00.000+0900',
-      //     startDate: '2022-11-08T19:00:00.000+0900',
-      //     value: 1168,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T19:00:00.000+0900',
-      //     startDate: '2022-11-08T18:00:00.000+0900',
-      //     value: 157,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T18:00:00.000+0900',
-      //     startDate: '2022-11-08T17:00:00.000+0900',
-      //     value: 900,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T15:00:00.000+0900',
-      //     startDate: '2022-11-08T14:00:00.000+0900',
-      //     value: 386,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T14:00:00.000+0900',
-      //     startDate: '2022-11-08T13:00:00.000+0900',
-      //     value: 651,
-      //   },
-      //   {
-      //     endDate: '2022-11-08T13:00:00.000+0900',
-      //     startDate: '2022-11-08T12:00:00.000+0900',
-      //     value: 34,
-      //   },
-      // ];
     });
-  }, []);
+  }, [year, month, day]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SimpleStepCounter</Text>
+      <Text style={styles.dateText}>
+        {year}년 {month + 1}월 {day}일의 걸음 수
+      </Text>
       <Text
         style={[
           styles.steps,
@@ -170,14 +113,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 30,
     color: '#000',
   },
+  dateText: {
+    marginTop: 10,
+    fontSize: 20,
+    color: '#000000',
+  },
   steps: {
-    fontSize: 60,
-    marginTop: 20,
+    marginTop: 30,
+    fontSize: 80,
     color: '#000',
     fontWeight: 'bold',
   },
