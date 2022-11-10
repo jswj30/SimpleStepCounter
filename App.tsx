@@ -31,13 +31,9 @@ const App = () => {
     }
 
     AppleHealthKit.initHealthKit(permissions, (error: string) => {
-      /* Called after we receive a response from the system */
-
       if (error) {
         console.log('[ERROR] Cannot grant permissions!');
       }
-
-      /* Can now read or write to HealthKit */
 
       // 하루 걸음 수
       let options = {
@@ -63,17 +59,16 @@ const App = () => {
       //   "endDate": "2022-11-09T10:30:16.949+0900",
       //   "startDate": "2022-11-09T07:57:39.734+0900",
       //   "value": 1632
-      // }
+      // },
 
       // 1주일 걸음 수
-
-      // let options = {
-      //   startDate: new Date(2022, 10, 8).toISOString(), // required
+      // let optionss = {
+      //   startDate: new Date(year, month, day - 2).toISOString(), // required
       //   endDate: new Date().toISOString(), // optional; default now
       // };
 
       // AppleHealthKit.getDailyStepCountSamples(
-      //   options,
+      //   optionss,
       //   (err: string, results: Array<HealthValue>) => {
       //     if (err) {
       //       console.log('err===');
