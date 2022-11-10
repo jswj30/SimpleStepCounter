@@ -1,5 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  NativeAppEventEmitter,
+} from 'react-native';
 import AppleHealthKit, {
   HealthValue,
   HealthKitPermissions,
@@ -19,7 +25,16 @@ const App = () => {
   const [month, setMonth] = useState<number>(0);
   const [day, setDay] = useState<number>(0);
 
+  // 실시간 걸음 수 측정
+  NativeAppEventEmitter.addListener('healthKit:StepCount:new', () => {
+    updateStepData();
+  });
+
   useEffect(() => {
+    updateStepData();
+  }, [year, month, day]);
+
+  const updateStepData = () => {
     const today = new Date();
     setYear(today.getFullYear());
     setMonth(today.getMonth());
@@ -83,7 +98,7 @@ const App = () => {
       //   },
       // );
     });
-  }, [year, month, day]);
+  };
 
   return (
     <View style={styles.container}>
