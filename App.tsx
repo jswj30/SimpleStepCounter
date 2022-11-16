@@ -10,16 +10,6 @@ import AppleHealthKit, {
   HealthValue,
   HealthKitPermissions,
 } from 'react-native-health';
-import GoogleFit, {Scopes} from 'react-native-google-fit';
-
-const options = {
-  scopes: [
-    Scopes.FITNESS_ACTIVITY_READ,
-    Scopes.FITNESS_ACTIVITY_WRITE,
-    Scopes.FITNESS_BODY_READ,
-    Scopes.FITNESS_BODY_WRITE,
-  ],
-};
 
 /* Permission options */
 const permissions = {
@@ -37,38 +27,36 @@ const App = () => {
 
   // 실시간 걸음 수 측정
   NativeAppEventEmitter.addListener('healthKit:StepCount:new', () => {
-    updateStepData();
+    updateStepDataIos();
   });
 
   useEffect(() => {
-    updateStepData();
+    if (Platform.OS === 'android') {
+      updateStepDataAndroid();
+    } else {
+      updateStepDataIos();
+    }
   }, []);
 
-  const updateStepData = () => {
+  const updateStepDataAndroid = () => {
     const today = new Date();
-    setYear(today.getFullYear());
-    setMonth(today.getMonth());
-    setDay(today.getDate());
+    const years = today.getFullYear();
+    const months = today.getMonth();
+    const days = today.getDate();
+    setYear(years);
+    setMonth(months);
+    setDay(days);
+    setSteps('iOS에서만 서비스 가능합니다.');
+  };
 
-    if (Platform.OS === 'android') {
-      // GoogleFit.checkIsAuthorized().then(() => {
-      //   console.log('GoogleFit.isAuthorized: ');
-      //   console.log(GoogleFit.isAuthorized);
-      // });
-
-      GoogleFit.authorize(options)
-        .then(authResult => {
-          console.log('authResult====');
-          console.log(authResult);
-        })
-        .catch(err => {
-          console.log('AUTH_ERROR');
-          console.log(err);
-        });
-
-      setSteps('iOS에서만 서비스 가능합니다.');
-      return;
-    }
+  const updateStepDataIos = () => {
+    const today = new Date();
+    const years = today.getFullYear();
+    const months = today.getMonth();
+    const days = today.getDate();
+    setYear(years);
+    setMonth(months);
+    setDay(days);
 
     AppleHealthKit.initHealthKit(permissions, (error: string) => {
       if (error) {
@@ -77,7 +65,7 @@ const App = () => {
 
       // 하루 걸음 수
       let options = {
-        date: new Date(year, month, day).toISOString(), // optional; default now
+        date: new Date(years, months, days).toISOString(), // optional; default now
       };
 
       AppleHealthKit.getStepCount(
@@ -102,7 +90,7 @@ const App = () => {
 
       // 1주일 걸음 수
       // let optionss = {
-      //   startDate: new Date(year, month, day - 2).toISOString(), // required
+      //   startDate: new Date(years, months, days - 2).toISOString(), // required
       //   endDate: new Date().toISOString(), // optional; default now
       // };
 
