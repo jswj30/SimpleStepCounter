@@ -10,6 +10,12 @@ import AppleHealthKit, {
   HealthValue,
   HealthKitPermissions,
 } from 'react-native-health';
+import GoogleFit, {Scopes} from 'react-native-google-fit';
+
+const today = new Date();
+const year = today.getFullYear();
+const month = today.getMonth();
+const day = today.getDate();
 
 /* Permission options */
 const permissions = {
@@ -19,11 +25,27 @@ const permissions = {
   },
 } as HealthKitPermissions;
 
+const scopeOptions = {
+  scopes: [
+    Scopes.FITNESS_ACTIVITY_READ,
+    Scopes.FITNESS_ACTIVITY_WRITE,
+    Scopes.FITNESS_BODY_READ,
+    Scopes.FITNESS_BODY_WRITE,
+  ],
+};
+
+const opt = {
+  startDate: new Date(year, month, day).toISOString(), // required ISO8601Timestamp
+  endDate: new Date().toISOString(), // required ISO8601Timestamp
+  // bucketUnit: BucketUnit.DAY, // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
+  // bucketInterval: 1, // optional - default 1.
+};
+
 const App = () => {
   const [steps, setSteps] = useState<string | number>(0);
-  const [year, setYear] = useState<number>(0);
-  const [month, setMonth] = useState<number>(0);
-  const [day, setDay] = useState<number>(0);
+  // const [year, setYear] = useState<number>(0);
+  // const [month, setMonth] = useState<number>(0);
+  // const [day, setDay] = useState<number>(0);
 
   // 실시간 걸음 수 측정
   NativeAppEventEmitter.addListener('healthKit:StepCount:new', () => {
@@ -38,25 +60,52 @@ const App = () => {
     }
   }, []);
 
-  const updateStepDataAndroid = () => {
-    const today = new Date();
-    const years = today.getFullYear();
-    const months = today.getMonth();
-    const days = today.getDate();
-    setYear(years);
-    setMonth(months);
-    setDay(days);
-    setSteps('iOS에서만 서비스 가능합니다.');
+  const updateStepDataAndroid = async () => {
+    try {
+      console.log(GoogleFit.isAuthorized);
+
+      if (!GoogleFit.isAuthorized) {
+        const auth = await GoogleFit.authorize(scopeOptions);
+        if (auth?.success) {
+          getStepAndroid();
+        }
+      } else {
+        getStepAndroid();
+      }
+
+      // setSteps('iOS에서만 서비스 가능합니다.');
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getStepAndroid = async () => {
+    try {
+      const dailyStep = await GoogleFit.getWeeklySteps(
+        new Date(year, month, day),
+        0,
+      );
+      // console.log('Daily steps >>> ', dailyStep[1]?.steps);
+
+      const result = dailyStep[1]?.steps;
+      console.log(result[result.length - 1]);
+
+      setSteps(
+        Math.floor(
+          result[result.length - 1]?.value
+            ? result[result.length - 1].value
+            : 0,
+        ),
+      );
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const updateStepDataIos = () => {
-    const today = new Date();
-    const years = today.getFullYear();
-    const months = today.getMonth();
-    const days = today.getDate();
-    setYear(years);
-    setMonth(months);
-    setDay(days);
+    // setYear(years);
+    // setMonth(months);
+    // setDay(days);
 
     AppleHealthKit.initHealthKit(permissions, (error: string) => {
       if (error) {
@@ -65,7 +114,7 @@ const App = () => {
 
       // 하루 걸음 수
       let options = {
-        date: new Date(years, months, days).toISOString(), // optional; default now
+        date: new Date(year, month, day).toISOString(), // optional; default now
       };
 
       AppleHealthKit.getStepCount(
@@ -90,7 +139,7 @@ const App = () => {
 
       // 1주일 걸음 수
       // let optionss = {
-      //   startDate: new Date(years, months, days - 2).toISOString(), // required
+      //   startDate: new Date(year, month, day - 2).toISOString(), // required
       //   endDate: new Date().toISOString(), // optional; default now
       // };
 
@@ -119,13 +168,7 @@ const App = () => {
       <Text style={styles.dateText}>
         {year}년 {month + 1}월 {day}일의 걸음 수
       </Text>
-      <Text
-        style={[
-          styles.steps,
-          Platform.OS === 'android' && styles.stepsAndroid,
-        ]}>
-        {steps}
-      </Text>
+      <Text style={[styles.steps]}>{steps}</Text>
     </View>
   );
 };
