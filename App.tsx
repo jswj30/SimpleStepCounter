@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,16 @@ import AppleHealthKit, {
   HealthValue,
   HealthKitPermissions,
 } from 'react-native-health';
+import GoogleFit, {Scopes} from 'react-native-google-fit';
+
+const options = {
+  scopes: [
+    Scopes.FITNESS_ACTIVITY_READ,
+    Scopes.FITNESS_ACTIVITY_WRITE,
+    Scopes.FITNESS_BODY_READ,
+    Scopes.FITNESS_BODY_WRITE,
+  ],
+};
 
 /* Permission options */
 const permissions = {
@@ -41,6 +51,21 @@ const App = () => {
     setDay(today.getDate());
 
     if (Platform.OS === 'android') {
+      // GoogleFit.checkIsAuthorized().then(() => {
+      //   console.log('GoogleFit.isAuthorized: ');
+      //   console.log(GoogleFit.isAuthorized);
+      // });
+
+      GoogleFit.authorize(options)
+        .then(authResult => {
+          console.log('authResult====');
+          console.log(authResult);
+        })
+        .catch(err => {
+          console.log('AUTH_ERROR');
+          console.log(err);
+        });
+
       setSteps('iOS에서만 서비스 가능합니다.');
       return;
     }
