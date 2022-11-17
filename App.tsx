@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Platform,
   NativeAppEventEmitter,
+  TouchableOpacity,
 } from 'react-native';
 import AppleHealthKit, {
   HealthValue,
@@ -43,6 +44,7 @@ const opt = {
 
 const App = () => {
   const [steps, setSteps] = useState<string | number>(0);
+  const [isAuthAndroid, setIsAuthAndroid] = useState<boolean>(false);
   // const [year, setYear] = useState<number>(0);
   // const [month, setMonth] = useState<number>(0);
   // const [day, setDay] = useState<number>(0);
@@ -62,14 +64,17 @@ const App = () => {
 
   const updateStepDataAndroid = async () => {
     try {
+      console.log('GoogleFit.isAuthorized====');
       console.log(GoogleFit.isAuthorized);
 
       if (!GoogleFit.isAuthorized) {
         const auth = await GoogleFit.authorize(scopeOptions);
         if (auth?.success) {
+          setIsAuthAndroid(true);
           getStepAndroid();
         }
       } else {
+        setIsAuthAndroid(true);
         getStepAndroid();
       }
 
@@ -162,6 +167,13 @@ const App = () => {
     });
   };
 
+  const onPressDisconnect = async () => {
+    GoogleFit.disconnect();
+    setIsAuthAndroid(false);
+    setSteps(0);
+    console.log('disconnect complete====');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SimpleStepCounter</Text>
@@ -169,6 +181,28 @@ const App = () => {
         {year}년 {month + 1}월 {day}일의 걸음 수
       </Text>
       <Text style={[styles.steps]}>{steps}</Text>
+      {Platform.OS === 'android' && isAuthAndroid ? (
+        <View style={styles.disconnectArea}>
+          <TouchableOpacity
+            style={[
+              styles.disconnectButton,
+              {
+                backgroundColor: '#e6300c',
+              },
+            ]}
+            onPress={onPressDisconnect}>
+            <Text style={styles.disconnectText}>GoogleFit 연결 끊기</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.disconnectArea}>
+          <TouchableOpacity
+            style={styles.disconnectButton}
+            onPress={updateStepDataAndroid}>
+            <Text style={styles.disconnectText}>GoogleFit 연결하기</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -198,6 +232,24 @@ const styles = StyleSheet.create({
   stepsAndroid: {
     fontSize: 15,
     color: 'red',
+    fontWeight: 'bold',
+  },
+  disconnectArea: {
+    // borderWidth: 1,
+    marginTop: 20,
+  },
+  disconnectButton: {
+    // borderWidth: 1,
+    borderRadius: 12,
+    backgroundColor: '#15bfee',
+    width: 160,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  disconnectText: {
+    fontSize: 15,
+    color: '#ffffff',
     fontWeight: 'bold',
   },
 });
