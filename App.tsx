@@ -134,27 +134,57 @@ const App = () => {
       // },
 
       // 1주일 걸음 수
-      // let optionss = {
-      //   startDate: new Date(year, month, day - 2).toISOString(), // required
-      //   endDate: new Date().toISOString(), // optional; default now
-      // };
 
-      // AppleHealthKit.getDailyStepCountSamples(
-      //   optionss,
-      //   (err: string, results: Array<HealthValue>) => {
-      //     if (err) {
-      //       console.log('err===');
-      //       console.log(err);
-      //       return;
-      //     }
-      //     console.log('results===');
-      //     console.log(results);
+      let optionss = {
+        startDate: new Date(year, month, day - 7).toISOString(), // required
+        endDate: new Date().toISOString(), // optional; default now
+      };
 
-      //     if (results.length) {
-      //       setSteps(results[0].value);
-      //     }
-      //   },
-      // );
+      AppleHealthKit.getDailyStepCountSamples(
+        optionss,
+        (err: string, results: Array<HealthValue>) => {
+          if (err) {
+            console.log('err===');
+            console.log(err);
+            return;
+          }
+          // console.log('results===');
+          // console.log(results);
+
+          if (results.length) {
+            let arr = [];
+
+            let obj = results.reduce((acc, val) => {
+              let date = val.startDate.slice(0, 10);
+              acc[date] = acc[date] ? acc[date] + val.value : val.value;
+              return acc;
+            }, {});
+
+            for (let adj in obj) {
+              let val = {
+                date: adj,
+                value: obj[adj],
+              };
+              arr.push(val);
+            }
+
+            // console.log('arr===');
+            // console.log(arr);
+
+            // [
+            //   {"date": "2022-11-11", "value": 3369},
+            //   {date: '2022-11-10', value: 7807},
+            //   {date: '2022-11-09', value: 5448},
+            //   {date: '2022-11-08', value: 5905},
+            //   {date: '2022-11-07', value: 5276},
+            //   {date: '2022-11-06', value: 8721},
+            //   {date: '2022-11-05', value: 11581} // 마지막에 ,는 빼고 보내기
+            // ];
+
+            setSteps(Math.floor(arr[0]?.value ? arr[0].value : 0));
+          }
+        },
+      );
     });
   };
 
