@@ -49,14 +49,22 @@ const App = () => {
       console.log('new======================');
       updateStepDataIos();
     });
+  } else if (Platform.OS === 'android') {
+    // GoogleFit.observeSteps(() => {
+    //   console.log('adsfsdf');
+    // });
   }
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      updateStepDataAndroid();
-    } else {
+    if (Platform.OS === 'ios') {
       updateStepDataIos();
+      return;
     }
+    let interval = setInterval(updateStepDataAndroid, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const updateStepDataAndroid = async () => {
@@ -80,14 +88,12 @@ const App = () => {
 
   const getStepAndroid = async () => {
     try {
-      const dailyStep = await GoogleFit.getWeeklySteps(
-        new Date(year, month, day),
-        0,
-      );
-      // console.log('Daily steps >>> ', dailyStep[1]?.steps);
+      console.log('andandand====');
+      const dailyStep = await GoogleFit.getWeeklySteps(new Date());
+      console.log('Daily steps >>> ', dailyStep[2].steps);
 
-      const result = dailyStep[1]?.steps;
-      // console.log(result[result.length - 1]);
+      const result = dailyStep[2]?.steps;
+      console.log(result[result.length - 1]);
 
       setSteps(
         Math.floor(
@@ -155,7 +161,7 @@ const App = () => {
             let arr = [];
 
             let obj = results.reduce((acc, val) => {
-              let date = val.startDate.slice(0, 10);
+              let date: string = val.startDate.slice(0, 10);
               acc[date] = acc[date] ? acc[date] + val.value : val.value;
               return acc;
             }, {});
