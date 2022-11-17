@@ -35,24 +35,21 @@ const scopeOptions = {
   ],
 };
 
-const opt = {
-  startDate: new Date(year, month, day).toISOString(), // required ISO8601Timestamp
-  endDate: new Date().toISOString(), // required ISO8601Timestamp
-  // bucketUnit: BucketUnit.DAY, // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
-  // bucketInterval: 1, // optional - default 1.
-};
-
 const App = () => {
   const [steps, setSteps] = useState<string | number>(0);
   const [isAuthAndroid, setIsAuthAndroid] = useState<boolean>(false);
-  // const [year, setYear] = useState<number>(0);
-  // const [month, setMonth] = useState<number>(0);
-  // const [day, setDay] = useState<number>(0);
+  const [isAuthIos, setIsAuthIos] = useState<boolean>(false);
 
   // 실시간 걸음 수 측정
-  NativeAppEventEmitter.addListener('healthKit:StepCount:new', () => {
-    updateStepDataIos();
-  });
+  if (Platform.OS === 'ios') {
+    NativeAppEventEmitter.addListener('healthKit:StepCount:setup:failure', () =>
+      console.log('setup:failure'),
+    );
+    NativeAppEventEmitter.addListener('healthKit:StepCount:new', () => {
+      console.log('new======================');
+      updateStepDataIos();
+    });
+  }
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -64,9 +61,6 @@ const App = () => {
 
   const updateStepDataAndroid = async () => {
     try {
-      console.log('GoogleFit.isAuthorized====');
-      console.log(GoogleFit.isAuthorized);
-
       if (!GoogleFit.isAuthorized) {
         const auth = await GoogleFit.authorize(scopeOptions);
         if (auth?.success) {
@@ -93,7 +87,7 @@ const App = () => {
       // console.log('Daily steps >>> ', dailyStep[1]?.steps);
 
       const result = dailyStep[1]?.steps;
-      console.log(result[result.length - 1]);
+      // console.log(result[result.length - 1]);
 
       setSteps(
         Math.floor(
@@ -108,10 +102,6 @@ const App = () => {
   };
 
   const updateStepDataIos = () => {
-    // setYear(years);
-    // setMonth(months);
-    // setDay(days);
-
     AppleHealthKit.initHealthKit(permissions, (error: string) => {
       if (error) {
         console.log('[ERROR] Cannot grant permissions!');
@@ -129,10 +119,11 @@ const App = () => {
             console.log(err);
             return;
           }
-          console.log('results===');
-          console.log(results);
+          // console.log('results===');
+          // console.log(results);
 
           setSteps(Math.floor(results?.value ? results.value : 0));
+          setIsAuthIos(true);
         },
       );
 
@@ -168,10 +159,57 @@ const App = () => {
   };
 
   const onPressDisconnect = async () => {
-    GoogleFit.disconnect();
-    setIsAuthAndroid(false);
-    setSteps(0);
-    console.log('disconnect complete====');
+    if (Platform.OS === 'android') {
+      GoogleFit.disconnect();
+      setIsAuthAndroid(false);
+      setSteps(0);
+      console.log('disconnect complete====');
+    } else if (Platform.OS === 'ios') {
+      console.log('adsffff');
+
+      let options = {
+        permissions: {
+          read: ['StepCount'],
+          write: ['StepCount'],
+        },
+      };
+
+      AppleHealthKit.initHealthKit(options, (err: string, results: boolean) => {
+        if (err) {
+          console.log('error initializing Healthkit: ', err);
+          return;
+        }
+        // Healthkit is initialized...
+        // now safe to read and write Healthkit data...
+      });
+
+      setIsAuthIos(false);
+      setSteps(0);
+    }
+  };
+
+  const checkAuth = async () => {
+    if (Platform.OS === 'android') {
+      console.log(GoogleFit.isAuthorized);
+      // true
+    } else if (Platform.OS === 'ios') {
+      AppleHealthKit.getAuthStatus(permissions, (err, results) => {
+        console.log(err, results);
+
+        // export enum HealthStatusCode {
+        //   NotDetermined = 0,
+        //   SharingDenied = 1,
+        //   SharingAuthorized = 2,
+        // }
+
+        // {
+        //   "permissions": {
+        //     "read": [2],
+        //     "write": [2]
+        //   }
+        // }
+      });
+    }
   };
 
   return (
@@ -181,28 +219,47 @@ const App = () => {
         {year}년 {month + 1}월 {day}일의 걸음 수
       </Text>
       <Text style={[styles.steps]}>{steps}</Text>
-      {Platform.OS === 'android' && isAuthAndroid ? (
-        <View style={styles.disconnectArea}>
-          <TouchableOpacity
-            style={[
-              styles.disconnectButton,
-              {
-                backgroundColor: '#e6300c',
-              },
-            ]}
-            onPress={onPressDisconnect}>
-            <Text style={styles.disconnectText}>GoogleFit 연결 끊기</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.disconnectArea}>
-          <TouchableOpacity
-            style={styles.disconnectButton}
-            onPress={updateStepDataAndroid}>
-            <Text style={styles.disconnectText}>GoogleFit 연결하기</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {Platform.OS === 'android' &&
+        (isAuthAndroid ? (
+          <View style={styles.disconnectArea}>
+            <TouchableOpacity
+              style={styles.connectButton}
+              onPress={onPressDisconnect}>
+              <Text style={styles.disconnectText}>GoogleFit 연결 끊기</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.disconnectArea}>
+            <TouchableOpacity
+              style={styles.disconnectButton}
+              onPress={updateStepDataAndroid}>
+              <Text style={styles.disconnectText}>GoogleFit 연결하기</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      {Platform.OS === 'ios' &&
+        (isAuthIos ? (
+          <View style={styles.disconnectArea}>
+            <TouchableOpacity
+              style={styles.connectButton}
+              onPress={onPressDisconnect}>
+              <Text style={styles.disconnectText}>Health 연결 끊기</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.disconnectArea}>
+            <TouchableOpacity
+              style={styles.disconnectButton}
+              onPress={updateStepDataIos}>
+              <Text style={styles.disconnectText}>Health 연결하기</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      <View style={styles.disconnectArea}>
+        <TouchableOpacity style={styles.disconnectButton} onPress={checkAuth}>
+          <Text style={styles.disconnectText}>연동 확인하기</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -235,13 +292,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   disconnectArea: {
-    // borderWidth: 1,
     marginTop: 20,
   },
   disconnectButton: {
-    // borderWidth: 1,
     borderRadius: 12,
     backgroundColor: '#15bfee',
+    width: 160,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  connectButton: {
+    borderRadius: 12,
+    backgroundColor: '#e6300c',
     width: 160,
     height: 50,
     alignItems: 'center',
