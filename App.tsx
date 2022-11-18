@@ -6,6 +6,7 @@ import {
   Platform,
   NativeAppEventEmitter,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import AppleHealthKit, {
   HealthValue,
@@ -296,6 +297,21 @@ const App = () => {
           <Text style={styles.disconnectText}>연동 확인하기</Text>
         </TouchableOpacity>
       </View>
+      {Platform.OS === 'ios' && (
+        <View style={styles.disconnectArea}>
+          <TouchableOpacity
+            style={styles.disconnectButton}
+            onPress={() => {
+              // Linking.openURL('x-apple-health://');
+              // Linking.openURL('x-argonaut-app://');
+              // Linking.openSettings();
+
+              Linking.openURL('app-settings://notification/myapp');
+            }}>
+            <Text style={styles.disconnectText}>건강앱</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
