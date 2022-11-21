@@ -307,6 +307,7 @@ const App = () => {
               // Linking.openSettings();
 
               Linking.openURL('app-settings://notification/myapp');
+              Linking.openURL('App-Prefs:HEALTH');
             }}>
             <Text style={styles.disconnectText}>건강앱</Text>
           </TouchableOpacity>
