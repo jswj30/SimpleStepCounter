@@ -306,8 +306,8 @@ const App = () => {
               // Linking.openURL('x-argonaut-app://');
               // Linking.openSettings();
 
-              Linking.openURL('app-settings://notification/myapp');
-              Linking.openURL('App-Prefs:HEALTH');
+              // Linking.openURL('app-settings://notification/myapp');
+              Linking.openURL('App-Prefs:HEALTH'); // 설정 - 건강
             }}>
             <Text style={styles.disconnectText}>건강앱</Text>
           </TouchableOpacity>
